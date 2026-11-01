@@ -1,0 +1,44 @@
+:root{--bg:#f6f4ee;--ink:#1d2a27;--mut:#5d6b66;--pri:#1f6f5c;--pri2:#16302b;--line:#d8d3c4;--card:#fff;--warn:#b3402b;--gold:#b88a1c}
+@media (prefers-color-scheme:dark){:root{--bg:#121917;--ink:#e8efe9;--mut:#9fb0a8;--pri:#4cb89f;--pri2:#0d1513;--line:#2b3a35;--card:#1a2421;--warn:#e07a63;--gold:#d7b24a}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Malgun Gothic",sans-serif;-webkit-text-size-adjust:100%}
+body{display:flex;flex-direction:column;overflow:hidden}
+#top{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 16px 8px;background:var(--pri2);color:#fff}
+#addr{flex:1;font-weight:600;font-size:15px;line-height:1.3;min-height:20px;overflow:hidden}
+#btn-here{width:40px;height:40px;border-radius:20px;border:1px solid #ffffff55;background:none;color:#fff;font-size:20px}
+#mapwrap{position:relative;flex:1;min-height:0}
+#map{position:absolute;inset:0}
+#cross{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;pointer-events:none;z-index:500}
+#cross::before,#cross::after{content:"";position:absolute;background:#e0392b;box-shadow:0 0 0 1px #fff}
+#cross::before{left:13px;top:0;width:2px;height:28px}#cross::after{top:13px;left:0;height:2px;width:28px}
+#maptools{position:absolute;right:8px;top:8px;z-index:600;display:flex;flex-direction:column;gap:6px}
+#maptools button{min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:14px}
+#maptools button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+#toast{position:absolute;left:16px;right:16px;bottom:12px;z-index:700;background:#000c;color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;display:none}
+#tabs{display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+#tabs button{flex:1;min-height:48px;border:0;background:none;color:var(--mut);font-size:15px;font-weight:600}
+#tabs button.on{color:var(--pri);box-shadow:inset 0 3px 0 var(--pri)}
+.sheet{position:fixed;left:0;right:0;bottom:calc(48px + env(safe-area-inset-bottom));max-height:62vh;overflow:auto;background:var(--card);border-top:1px solid var(--line);border-radius:14px 14px 0 0;padding:6px 16px 20px;z-index:800;box-shadow:0 -4px 16px #0003}
+.sheet.closed{display:none}
+#grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 8px}
+h2{font-size:17px;margin:4px 0 8px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:8px 0}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut);flex:1;min-width:130px;margin:6px 0}
+input,select,button{font:inherit}
+input[type=text],input[type=number],input[type=url],input[type=password],select{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--bg);color:var(--ink);font-size:16px}
+button{min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+button.primary{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+.hint{font-size:13px;color:var(--mut);margin:4px 0}
+.doc{font-size:14px;overflow-x:auto}
+.doc table{border-collapse:collapse;margin:6px 0;font-size:13px;white-space:nowrap}
+.doc th,.doc td{border:1px solid var(--line);padding:4px 8px;text-align:right}
+.doc th:first-child,.doc td:first-child{text-align:left}
+.doc h3{font-size:15px;margin:14px 0 4px}
+pre.say{white-space:pre-wrap;font:14px/1.55 system-ui,"Malgun Gothic",sans-serif;background:var(--bg);border-radius:8px;padding:10px}
+svg.chart{width:100%;max-width:380px;display:block;margin:8px auto}
+.tag{display:inline-block;border-radius:10px;padding:0 8px;margin:2px 4px 2px 0;font-size:12px;border:1px solid var(--line)}
+.tag.good{background:#1f6f5c22;border-color:var(--pri)}.tag.bad{background:#b3402b22;border-color:var(--warn)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:6px;margin-right:6px;vertical-align:middle}
+progress{width:100%;height:10px}
+#printarea{display:none}
+@media print{html,body{height:auto;overflow:visible;background:#fff;color:#000}body>*:not(#printarea){display:none!important}#printarea{display:block;font-size:12px}#printarea table{border-collapse:collapse;font-size:11px}#printarea th,#printarea td{border:1px solid #999;padding:2px 5px}#printarea h1{font-size:18px}#printarea h3{font-size:14px;margin:10px 0 3px}}

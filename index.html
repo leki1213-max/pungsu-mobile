@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16302b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>풍수모바일</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header id="top">
+  <div id="addr" aria-live="polite">지도를 움직이면 가운데 주소가 나와요</div>
+  <button id="btn-here" title="내 위치" aria-label="내 위치">◎</button>
+</header>
+
+<main id="mapwrap">
+  <div id="map"></div>
+  <div id="cross" aria-hidden="true"></div>
+  <div id="maptools">
+    <button data-base="Base" class="on">일반</button>
+    <button data-base="Satellite">위성</button>
+    <button data-base="Hybrid">하이브리드</button>
+    <button id="t-cad">지적도</button>
+  </div>
+  <div id="toast" role="status"></div>
+</main>
+
+<nav id="tabs">
+  <button data-tab="fs" class="on">풍수</button>
+  <button data-tab="data">자료</button>
+  <button data-tab="near">주변</button>
+  <button data-tab="list">매물</button>
+  <button data-tab="set">설정</button>
+</nav>
+
+<section id="sheet" class="sheet closed">
+  <div id="grab"></div>
+
+  <!-- 풍수 -->
+  <div class="pane" data-pane="fs">
+    <h2>현공풍수 · 지형</h2>
+    <div class="row">
+      <label>문향(대문이 바라보는 각도, 자북 기준)<input id="fs-deg" type="number" min="0" max="359.9" step="0.1" value="180" inputmode="decimal"></label>
+      <label>준공 연도<input id="fs-year" type="number" min="1864" max="2200" value="2010" inputmode="numeric"></label>
+    </div>
+    <div class="row">
+      <button id="fs-run" class="primary">현공풍수 해석 · 비성반</button>
+      <button id="fs-parcel">필지 정보</button>
+    </div>
+    <div class="row">
+      <button id="ov-compass">패철(24방위)</button>
+      <button id="ov-8">8방위</button>
+      <button id="ov-buf">반경 원</button>
+      <input id="buf-m" type="text" value="300,500,1000" aria-label="반경(m), 쉼표로 구분">
+    </div>
+    <div class="row">
+      <button id="terr-run">지형분석(주변 4km)</button>
+      <select id="terr-kind"><option value="hill">음영기복</option><option value="slope">경사도</option><option value="aspect">향(사면 방향)</option><option value="rv">능선·계곡</option></select>
+      <input id="terr-int" type="number" value="5" min="1" max="100" aria-label="등고선 간격(m)">m
+    </div>
+    <div class="row"><button id="ct-toggle">등고선 켜기/끄기</button><button id="kmz">KMZ 내보내기</button><button id="terr-clear">지형 지우기</button><button id="fs-print">결과 PDF 저장·공유</button></div>
+    <div id="fs-out"></div>
+  </div>
+
+  <!-- 자료 -->
+  <div class="pane" data-pane="data" hidden>
+    <h2>공공데이터 · 브리핑</h2>
+    <p class="hint">지도 가운데 법정동 기준이에요. 처음엔 몇 분 걸릴 수 있어요(월별 실거래 2006년~현재).</p>
+    <div class="row"><input id="pd-query" type="text" placeholder="예: 인천 서구 석남동 (비워 두면 가운데 주소)"></div>
+    <div class="row">
+      <button id="pd-run" class="primary">조회</button>
+      <button id="pd-print">PDF 저장·공유</button>
+      <button id="pd-share">글로 공유</button>
+    </div>
+    <progress id="pd-prog" value="0" max="100" hidden></progress>
+    <div id="pd-out" class="doc"></div>
+  </div>
+
+  <!-- 주변 -->
+  <div class="pane" data-pane="near" hidden>
+    <h2>주변시설 점수표</h2>
+    <div class="row"><button id="nb-run" class="primary">가운데 위치 점수표</button><button id="nb-print">PDF 저장·공유</button></div>
+    <div id="nb-out" class="doc"></div>
+  </div>
+
+  <!-- 매물 -->
+  <div class="pane" data-pane="list" hidden>
+    <h2>매물</h2>
+    <p class="hint">매물 정보는 이 폰에만 저장돼요(인터넷에 올라가지 않아요). QGIS에서 내보낸 GeoJSON 파일을 불러오세요.</p>
+    <div class="row"><input id="ml-file" type="file" accept=".geojson,.json,application/geo+json,application/json"><button id="ml-heat">열지도</button><button id="ml-clear">지우기</button></div>
+    <div id="ml-legend"></div>
+    <div id="ml-out"></div>
+  </div>
+
+  <!-- 설정 -->
+  <div class="pane" data-pane="set" hidden>
+    <h2>설정</h2>
+    <p class="hint">키는 이 폰의 브라우저에만 저장돼요. 코드나 인터넷에는 올라가지 않아요.</p>
+    <label>프록시(Worker) 주소<input id="s-proxy" type="url" placeholder="https://pungsu-proxy.내이름.workers.dev"></label>
+    <label>브이월드 인증키<input id="s-vworld" type="password" autocomplete="off"></label>
+    <label>브이월드에 등록한 도메인<input id="s-domain" type="text" placeholder="내이름.github.io"></label>
+    <label>카카오 REST API 키<input id="s-kakao" type="password" autocomplete="off"></label>
+    <label>공공데이터포털 키 (DATA_GO_KR_KEY)<input id="s-datago" type="password" autocomplete="off"></label>
+    <label>한국부동산원 R-ONE 키 (REB_API_KEY)<input id="s-reb" type="password" autocomplete="off"></label>
+    <label>자북 편각(°, 한국은 대략 -8.5, 서쪽이 −)<input id="s-decl" type="number" step="0.1" value="-8.5"></label>
+    <div class="row"><button id="s-save" class="primary">저장</button><button id="s-clear">키 모두 지우기</button></div>
+    <p id="s-msg" class="hint"></p>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
