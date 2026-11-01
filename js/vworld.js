@@ -18,15 +18,20 @@ export function jsonp(url, params, timeout = 15000) {
     document.head.appendChild(s);
   });
 }
-// path 예: "/req/address". 프록시 주소가 있으면 프록시로(키는 머리글), 없으면 JSONP 로 직접.
+// path 예: "/req/address". 브이월드는 프록시(Cloudflare)를 거치면 520 으로 막히는 것을 확인해(2026-11-02), 브라우저에서 JSONP 로 직접 부른다.
 export async function vcall(cfg, path, params) {
-  const p = { ...params, key: cfg.vworldKey, domain: cfg.domain || location.hostname };
-  if (cfg.proxy) {
-    const q = new URLSearchParams({ ...params, domain: p.domain }).toString();
-    const r = await fetch(`${cfg.proxy.replace(/\/$/, "")}/p/vworld${path}?${q}`, { headers: cfg.vworldKey ? { "X-Key": cfg.vworldKey } : {} });
-    return await r.json();
-  }
-  return await jsonp("https://api.vworld.kr" + path, p);
+  return await jsonp("https://api.vworld.kr" + path, { ...params, key: cfg.vworldKey, domain: cfg.domain || location.hostname });
+}
+// 브이월드 주소가 안 될 때 대신 쓰는 카카오 좌표→주소 (프록시 경유, 카카오는 프록시로 정상). 반환 모양은 reverseGeocode 와 같다.
+export async function kakaoReverse(cfg, lon, lat) {
+  const q = new URLSearchParams({ x: lon.toFixed(7), y: lat.toFixed(7), input_coord: "WGS84" });
+  const r = await fetch(`${cfg.proxy.replace(/\/$/, "")}/p/kakao/v2/local/geo/coord2address.json?${q}`, { headers: { "X-Key": cfg.kakaoKey } });
+  if (!r.ok) throw new Error(`카카오 주소 변환 실패 (HTTP ${r.status})`);
+  const d = ((await r.json()).documents || [])[0];
+  if (!d) return { road: "", parcel: "", structure: null, status: "NOT_FOUND" };
+  const a = d.address || {}, ro = d.road_address || {};
+  const s = a.region_1depth_name ? { level1: a.region_1depth_name, level2: a.region_2depth_name, level4L: a.region_3depth_name } : null;
+  return { road: ro.address_name || "", parcel: a.address_name || "", structure: s, status: "OK" };
 }
 export async function reverseGeocode(cfg, lon, lat) {
   const j = await vcall(cfg, "/req/address", { service: "address", request: "getAddress", version: "2.0", crs: "epsg:4326", point: `${lon},${lat}`, format: "json", type: "BOTH", zipcode: "false", simple: "false" });

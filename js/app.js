@@ -79,15 +79,27 @@ let revT, revSeq = 0;
 function reverseSoon() {
   clearTimeout(revT);
   revT = setTimeout(async () => {
-    if (!cfg.vworldKey) { $("addr").textContent = "설정에서 브이월드 키를 넣으면 가운데 주소가 나와요"; return; }
+    const canKakao = !!(cfg.proxy && cfg.kakaoKey);
+    if (!cfg.vworldKey && !canKakao) { $("addr").textContent = "설정에서 브이월드 키를 넣으면 가운데 주소가 나와요"; return; }
     const seq = ++revSeq, { lat, lon } = center();
     try {
-      const r = await V.reverseGeocode(cfg, lon, lat);
+      const r = await addressAt(lon, lat);
       if (seq !== revSeq) return;
       centerInfo = r;
-      $("addr").textContent = [r.road, r.parcel && r.parcel !== r.road ? "(" + r.parcel + ")" : ""].filter(Boolean).join(" ") || "주소를 찾지 못했어요";
+      $("addr").textContent = [r.road, r.parcel && r.parcel !== r.road ? "(" + r.parcel + ")" : ""].filter(Boolean).join(" ") + (r.src === "카카오" ? " · 카카오" : "") || "주소를 찾지 못했어요";
     } catch (e) { if (seq === revSeq) $("addr").textContent = "주소를 불러오지 못했어요: " + e.message; }
   }, 600);
+}
+// 가운데 주소: 브이월드(브라우저에서 직접 JSONP)를 먼저, 안 되면 카카오 좌표→주소로 대신한다
+async function addressAt(lon, lat) {
+  let err = null;
+  if (cfg.vworldKey) {
+    try { const r = await V.reverseGeocode(cfg, lon, lat); if (r.road || r.parcel) return { ...r, src: "브이월드" }; err = new Error("브이월드에 이 자리의 주소가 없어요"); } catch (e) { err = e; }
+  }
+  if (cfg.proxy && cfg.kakaoKey) {
+    try { const r = await V.kakaoReverse(cfg, lon, lat); if (r.road || r.parcel) return { ...r, src: "카카오" }; err = err || new Error("카카오에도 이 자리의 주소가 없어요"); } catch (e) { err = err ? new Error(err.message + " / " + e.message) : e; }
+  }
+  throw err || new Error("키가 없어요");
 }
 function initMap() {
   map = L.map("map", { zoomControl: false, center: cfg.last || [37.4563, 126.7052], zoom: cfg.lastZoom || 16 });
