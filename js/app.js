@@ -1,5 +1,6 @@
 // 풍수모바일 — 화면 연결. 계산은 모두 js/ 아래 모듈(노트북 파이썬과 같은 결과를 확인한 것)을 쓴다.
 import { loadSettings, saveSettings, SETTINGS_KEY } from "./transport.js";
+import { takeSetupFromHash } from "./setup-link.js";
 import * as V from "./vworld.js";
 import * as PD from "./publicdata.js";
 import * as R from "./reb.js";
@@ -14,6 +15,9 @@ import { buildKmz } from "./kmz.js";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 let cfg = loadSettings();
+// 설정 QR로 들어왔으면(주소 # 뒤) 키를 이 폰에 저장하고 주소창에서 바로 지운다
+const fromQr = takeSetupFromHash();
+if (fromQr) { cfg = { ...cfg, ...fromQr }; saveSettings(cfg); }
 let map, baseLayer, cadLayer, centerInfo = { road: "", parcel: "", structure: null }, overlays = {};
 
 // ───────── 알림 ─────────
@@ -309,5 +313,6 @@ fillSettings();
 initMap();
 loadListings().then(drawListings);
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => { /* 오프라인 저장은 없어도 앱은 돌아간다 */ });
-if (!cfg.vworldKey) { openTab("set"); toast("처음이에요. 설정에서 키를 입력해 주세요", 6000); }
+if (fromQr) { openTab("set"); $("s-msg").textContent = "QR로 설정을 받았어요. 주소창에서 키는 지웠어요."; toast("설정을 받았어요 (이 폰에만 저장)", 5000); }
+else if (!cfg.vworldKey) { openTab("set"); toast("처음이에요. 설정에서 키를 입력해 주세요", 6000); }
 window.__pungsu = { X, T, D, PD, R, N };   // 시험용
