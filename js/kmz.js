@@ -1,7 +1,7 @@
 // KMZ 내보내기: 지금 지도 가운데를 중심으로 패철(24산 경계선·이름), 문향선·좌선을 구글 어스용 KML 로 만들어 KMZ(zip)로 묶는다. JSZip 은 index.html 에서 불러온다.
 import { MOUNTAINS } from "./xuankong.js";
 import { dest } from "./chart.js";
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const coord = ([lat, lon]) => `${lon.toFixed(7)},${lat.toFixed(7)},0`;
 const line = (name, pts, color, width) => `<Placemark><name>${esc(name)}</name><Style><LineStyle><color>${color}</color><width>${width}</width></LineStyle></Style><LineString><tessellate>1</tessellate><coordinates>${pts.map(coord).join(" ")}</coordinates></LineString></Placemark>`;
 
