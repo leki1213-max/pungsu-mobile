@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>폰 설정 적용(보내기용)</title>
+<style>
+body{margin:0;padding:24px 16px;font:16px/1.6 system-ui,-apple-system,"Malgun Gothic",sans-serif;background:#f6f4ee;color:#1d2a27;max-width:520px;margin:auto}
+@media (prefers-color-scheme:dark){body{background:#121917;color:#e8efe9}}
+h1{font-size:20px}button{min-height:52px;width:100%;font:inherit;font-weight:700;border:0;border-radius:10px;background:#1f6f5c;color:#fff;margin:14px 0}
+li{margin:2px 0}.mut{font-size:13px;opacity:.75}#msg{font-weight:600}
+</style>
+</head>
+<body>
+<h1>풍수모바일 설정 받기</h1>
+<p id="what">확인 중…</p>
+<ul id="list"></ul>
+<button id="apply" hidden>이 기기에 설정 적용하고 앱 열기</button>
+<p id="msg"></p>
+<p class="mut">이 페이지는 주소 뒤(#)에 든 설정을 <b>버튼을 눌렀을 때만</b> 이 기기의 브라우저에 저장해요. 서버로 전송되지 않고, 저장한 뒤 주소에서 지워요. 컴퓨터에서 열어 두기만 하면 아무것도 저장되지 않아요.</p>
+<script type="module">
+import { decodeCfg, FIELDS } from "./js/setup-link.js";
+import { loadSettings, saveSettings } from "./js/transport.js";
+const NAMES = { proxy: "프록시 주소", domain: "브이월드 도메인", vworldKey: "브이월드 키", kakaoKey: "카카오 키", dataGoKey: "공공데이터포털 키", rebKey: "부동산원(R-ONE) 키" };
+const $ = (id) => document.getElementById(id);
+let cfg = null;
+const m = /^#cfg=([A-Za-z0-9_-]+)$/.exec(location.hash || "");
+try { cfg = m ? decodeCfg(m[1]) : null; } catch { cfg = null; }
+if (!cfg || !Object.keys(cfg).length) {
+  $("what").textContent = "받을 설정이 없어요. 노트북에서 보낸 링크를 다시 열어 주세요.";
+} else {
+  $("what").textContent = "아래 항목을 이 기기에 저장해요 (값은 화면에 보여 주지 않아요):";
+  $("list").innerHTML = FIELDS.filter((k) => cfg[k]).map((k) => `<li>✓ ${NAMES[k]}</li>`).join("");
+  $("apply").hidden = false;
+  $("apply").onclick = () => {
+    const ok = saveSettings({ ...loadSettings(), ...cfg });
+    if (!ok) { $("msg").textContent = "저장하지 못했어요(브라우저 저장소가 막혀 있어요)."; return; }
+    cfg = null;
+    history.replaceState(null, "", location.pathname + location.search);   // 주소에서 설정 지우기
+    $("msg").textContent = "저장했어요. 앱을 여는 중…";
+    $("apply").hidden = true; $("list").innerHTML = "";
+    setTimeout(() => location.replace("./index.html"), 600);
+  };
+}
+</script>
+</body>
+</html>

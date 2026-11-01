@@ -102,7 +102,7 @@
   <div class="pane" data-pane="set" hidden>
     <h2>설정</h2>
     <p class="hint">키는 이 폰의 브라우저에만 저장돼요. 코드나 인터넷에는 올라가지 않아요.</p>
-    <label>프록시(Worker) 주소<input id="s-proxy" type="url" placeholder="https://pungsu-proxy.내이름.workers.dev"></label>
+    <label>프록시(Worker) 주소<input id="s-proxy" type="url" placeholder="(비어 있음) 예: https://….workers.dev"></label>
     <label>브이월드 인증키<input id="s-vworld" type="password" autocomplete="off"></label>
     <label>브이월드에 등록한 도메인<input id="s-domain" type="text" placeholder="내이름.github.io"></label>
     <label>카카오 REST API 키<input id="s-kakao" type="password" autocomplete="off"></label>
@@ -110,6 +110,7 @@
     <label>한국부동산원 R-ONE 키 (REB_API_KEY)<input id="s-reb" type="password" autocomplete="off"></label>
     <label>자북 편각(°, 한국은 대략 -8.5, 서쪽이 −)<input id="s-decl" type="number" step="0.1" value="-8.5"></label>
     <div class="row"><button id="s-save" class="primary">저장</button><button id="s-clear">키 모두 지우기</button></div>
+    <p id="s-state" class="hint" aria-live="polite"></p>
     <p id="s-msg" class="hint"></p>
   </div>
 </section>

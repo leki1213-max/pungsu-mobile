@@ -31,11 +31,17 @@ const center = () => { const c = map.getCenter(); return { lat: c.lat, lon: c.ln
 function fillSettings() {
   $("s-proxy").value = cfg.proxy || ""; $("s-vworld").value = cfg.vworldKey || ""; $("s-domain").value = cfg.domain || location.hostname;
   $("s-kakao").value = cfg.kakaoKey || ""; $("s-datago").value = cfg.dataGoKey || ""; $("s-reb").value = cfg.rebKey || ""; $("s-decl").value = cfg.decl ?? -8.5;
+  showState();
+}
+// 어떤 항목이 저장돼 있는지 보여 준다(값은 보여 주지 않음). 빈 칸의 회색 예시 글자와 헷갈리지 않게.
+function showState() {
+  const items = [["프록시", cfg.proxy], ["브이월드 키", cfg.vworldKey], ["카카오 키", cfg.kakaoKey], ["공공데이터 키", cfg.dataGoKey], ["R-ONE 키", cfg.rebKey]];
+  $("s-state").textContent = "저장된 항목: " + items.map(([n, v]) => `${n} ${v ? "✓" : "✗"}`).join(" · ");
 }
 $("s-save").onclick = () => {
   cfg = { proxy: $("s-proxy").value.trim(), vworldKey: $("s-vworld").value.trim(), domain: $("s-domain").value.trim(), kakaoKey: $("s-kakao").value.trim(),
     dataGoKey: $("s-datago").value.trim(), rebKey: $("s-reb").value.trim(), decl: parseFloat($("s-decl").value) };
-  $("s-msg").textContent = saveSettings(cfg) ? "저장했어요. 키는 이 폰에만 있어요." : "저장하지 못했어요(브라우저 저장소가 막혀 있어요).";
+  $("s-msg").textContent = saveSettings(cfg) ? "저장했어요. 키는 이 폰에만 있어요." : "저장하지 못했어요(브라우저 저장소가 막혀 있어요)."; showState();
   setBase(currentBase); reverseSoon();
 };
 $("s-clear").onclick = () => { try { localStorage.removeItem(SETTINGS_KEY); } catch { /* 무시 */ } cfg = {}; fillSettings(); $("s-msg").textContent = "키를 모두 지웠어요."; };
